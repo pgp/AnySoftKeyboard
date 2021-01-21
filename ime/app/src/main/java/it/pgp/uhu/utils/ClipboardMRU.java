@@ -10,9 +10,17 @@ public class ClipboardMRU extends SimpleMRU<String> {
     public ClipboardMRU(int maxIndex, ClipboardManager manager) {
         super(maxIndex);
         this.manager = manager;
-        ClipData clipData = manager.getPrimaryClip();
-        String clipText = clipData.getItemAt(0).getText().toString();
-        addItem(clipText);
+    }
+
+    public boolean addClipboardItemFromSystem() {
+        try {
+            ClipData clipData = manager.getPrimaryClip();
+            String clipText = clipData.getItemAt(0).getText().toString();
+            return addItem(clipText);
+        }
+        catch(Exception e) {
+            return false;
+        } // actually, ignore NPEs due to empty system clipboard
     }
 
     public boolean addItem(String clipboardItem) {

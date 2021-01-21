@@ -41,12 +41,7 @@ public class UhuActivity extends Activity {
         new ClipboardRibbon(AnySoftKeyboardBase.instance, this);
 
         // neither this nor polling will work if activity is not on focus or is not an IME, on Android 10+
-        manager.addPrimaryClipChangedListener(() -> {
-            ClipData clipData = manager.getPrimaryClip();
-            String clipText = clipData.getItemAt(0).getText().toString();
-            // Toast.makeText(UhuActivity.this, "intercepted: "+clipText, Toast.LENGTH_SHORT).show();
-            AnySoftKeyboardBase.instance.getClipboardAdapter(this).add(clipText); // relies on MRU logic
-        });
+        manager.addPrimaryClipChangedListener(() -> AnySoftKeyboardBase.instance.getClipboardAdapter(this).refresh());
 
         new Handler().postDelayed(()->simulateHomePress(this), 1000);
     }

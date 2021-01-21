@@ -21,12 +21,11 @@ public class ClipboardAdapter extends ArrayAdapter<String> {
     public final List<String> objects;
     public final ClipboardMRU mru;
 
-//    public final AtomicBoolean selfEvent = new AtomicBoolean(false);
-
     private ClipboardAdapter(@NonNull Context context, ClipboardMRU mru) {
         super(context, android.R.layout.simple_list_item_1, mru.keys);
         this.mru = mru;
         this.objects = mru.keys;
+        refresh();
     }
 
     public static ClipboardAdapter create(@NonNull Context context, ClipboardManager clipboardManager) {
@@ -49,9 +48,8 @@ public class ClipboardAdapter extends ArrayAdapter<String> {
         return v;
     }
 
-    @Override
-    public void add(@Nullable String object) {
-        if(mru.addItem(object)) notifyDataSetChanged();
+    public void refresh() {
+        if(mru.addClipboardItemFromSystem()) notifyDataSetChanged();
     }
 
     @Override
