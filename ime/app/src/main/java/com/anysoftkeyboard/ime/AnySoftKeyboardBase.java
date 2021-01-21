@@ -16,6 +16,8 @@
 
 package com.anysoftkeyboard.ime;
 
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.inputmethodservice.InputMethodService;
 import android.support.annotation.CallSuper;
@@ -43,6 +45,8 @@ import com.menny.android.anysoftkeyboard.AnyApplication;
 import com.menny.android.anysoftkeyboard.BuildConfig;
 import com.menny.android.anysoftkeyboard.R;
 import io.reactivex.disposables.CompositeDisposable;
+import it.pgp.uhu.adapters.ClipboardAdapter;
+
 import java.util.List;
 
 public abstract class AnySoftKeyboardBase extends InputMethodService
@@ -70,9 +74,28 @@ public abstract class AnySoftKeyboardBase extends InputMethodService
     @NonNull
     protected final CompositeDisposable mInputSessionDisposables = new CompositeDisposable();
 
+    public static AnySoftKeyboardBase instance;
+
+    public ClipboardAdapter clipboardAdapter;
+    public ClipboardManager clipboardManager;
+
+    public synchronized ClipboardAdapter getClipboardAdapter(Context context) {
+        if(clipboardAdapter == null)
+            clipboardAdapter = ClipboardAdapter.create(context, getClipboardManager(context));
+        return clipboardAdapter;
+    }
+
+    public synchronized ClipboardManager getClipboardManager(Context context) {
+        if(clipboardManager == null)
+            clipboardManager = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
+        return clipboardManager;
+    }
+
     @Override
     @CallSuper
     public void onCreate() {
+        instance = this;
+        getClipboardAdapter(this);
         Logger.i(
                 TAG,
                 "****** AnySoftKeyboard v%s (%d) service started.",
@@ -265,6 +288,7 @@ public abstract class AnySoftKeyboardBase extends InputMethodService
         mInputView = null;
 
         super.onDestroy();
+        instance = null;
     }
 
     @Override

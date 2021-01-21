@@ -1,5 +1,13 @@
 AnySoftKeyboard&nbsp;[![Latest release](https://img.shields.io/github/release/AnySoftKeyboard/AnySoftKeyboard.svg)](https://github.com/AnySoftKeyboard/AnySoftKeyboard/releases)
 ====================
+## Uhu edition
+This fork of AnysoftKeyboard includes a clipboard-with-history feature, like the popular [Ditto](https://ditto-cp.sourceforge.io/) application for Windows.
+
+This hasn't been developed as a standalone application, because Android 10+ requires that, in order to intercept clipboard events, the requesting process has to be a system app or an IME (i.e. a keyboard)
+
+The clipboard functionality consists of a separate activity in the launcher, which shows a dismissable overlay window (this requires explicit user permission) with the clipboard content and then finishes. The clipboard history is stored in the IME process, so you can't use this without having AnysoftKeyboard as your active keyboard.
+
+
 Discussions can be found on&nbsp;[💬&nbsp;GitHub](https://github.com/AnySoftKeyboard/AnySoftKeyboard/discussions)<br/>
 Support chat-channels can be found on&nbsp;[![Gitter chat](https://badges.gitter.im/AnySoftKeyboard/gitter.png)](https://gitter.im/AnySoftKeyboard)<br/>
 <br/>

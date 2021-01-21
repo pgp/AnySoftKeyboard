@@ -20,6 +20,10 @@
     <!-- REQUIRED BACKUP TO/RESTORE FROM SDCARD -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <!-- Uhu permissions -->
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
     <!-- currently, only support touch and fake-touch devices -->
     <uses-feature android:name="android.hardware.faketouch" />
     <uses-feature
@@ -134,6 +138,19 @@
             android:label="@string/ime_name"
             android:roundIcon="@mipmap/ic_launcher_round"
             android:theme="@style/Theme.AskFileExplorer" />
+
+        <activity
+            android:name="it.pgp.uhu.UhuActivity"
+            android:icon="@android:drawable/ic_menu_compass"
+            android:label="Uhu"
+            android:launchMode="singleTask"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.AskFileExplorer">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
