@@ -15,12 +15,21 @@ public class ClipboardMRU extends SimpleMRU<String> {
     public boolean addClipboardItemFromSystem() {
         try {
             ClipData clipData = manager.getPrimaryClip();
+            if(clipData==null) {
+                Log.e(getClass().getName(),"AnySoftKeyBoard is not the default IME, cannot access clipboard");
+                return false;
+            }
+
             String clipText = clipData.getItemAt(0).getText().toString();
             return addItem(clipText);
         }
+        catch(NullPointerException n) {
+            Log.i(getClass().getName(),"Clipboard is empty, no item to take");
+        }
         catch(Exception e) {
-            return false;
-        } // actually, ignore NPEs due to empty system clipboard
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public boolean addItem(String clipboardItem) {
