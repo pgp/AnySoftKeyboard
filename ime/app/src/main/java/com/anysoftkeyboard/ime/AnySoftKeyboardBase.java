@@ -16,8 +16,6 @@
 
 package com.anysoftkeyboard.ime;
 
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.inputmethodservice.InputMethodService;
 import android.support.annotation.CallSuper;
@@ -35,6 +33,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
 import com.anysoftkeyboard.base.utils.GCUtils;
 import com.anysoftkeyboard.base.utils.Logger;
 import com.anysoftkeyboard.keyboards.views.KeyboardViewContainerView;
@@ -44,10 +43,10 @@ import com.anysoftkeyboard.utils.ModifierKeyState;
 import com.menny.android.anysoftkeyboard.AnyApplication;
 import com.menny.android.anysoftkeyboard.BuildConfig;
 import com.menny.android.anysoftkeyboard.R;
-import io.reactivex.disposables.CompositeDisposable;
-import it.pgp.uhu.adapters.ClipboardAdapter;
 
 import java.util.List;
+
+import io.reactivex.disposables.CompositeDisposable;
 
 public abstract class AnySoftKeyboardBase extends InputMethodService
         implements OnKeyboardActionListener {
@@ -74,28 +73,9 @@ public abstract class AnySoftKeyboardBase extends InputMethodService
     @NonNull
     protected final CompositeDisposable mInputSessionDisposables = new CompositeDisposable();
 
-    public static AnySoftKeyboardBase instance;
-
-    public ClipboardAdapter clipboardAdapter;
-    public ClipboardManager clipboardManager;
-
-    public synchronized ClipboardAdapter getClipboardAdapter(Context context) {
-        if(clipboardAdapter == null)
-            clipboardAdapter = ClipboardAdapter.create(context, getClipboardManager(context));
-        return clipboardAdapter;
-    }
-
-    public synchronized ClipboardManager getClipboardManager(Context context) {
-        if(clipboardManager == null)
-            clipboardManager = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
-        return clipboardManager;
-    }
-
     @Override
     @CallSuper
     public void onCreate() {
-        instance = this;
-        getClipboardAdapter(this);
         Logger.i(
                 TAG,
                 "****** AnySoftKeyboard v%s (%d) service started.",
@@ -286,9 +266,7 @@ public abstract class AnySoftKeyboardBase extends InputMethodService
         mInputSessionDisposables.dispose();
         if (getInputView() != null) getInputView().onViewNotRequired();
         mInputView = null;
-
         super.onDestroy();
-        instance = null;
     }
 
     @Override

@@ -17,6 +17,7 @@
 package com.menny.android.anysoftkeyboard;
 
 import android.app.Application;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -46,6 +47,7 @@ import com.anysoftkeyboard.devicespecific.DeviceSpecificV19;
 import com.anysoftkeyboard.devicespecific.DeviceSpecificV24;
 import com.anysoftkeyboard.devicespecific.DeviceSpecificV28;
 import com.anysoftkeyboard.dictionaries.ExternalDictionaryFactory;
+import com.anysoftkeyboard.ime.AnySoftKeyboardBase;
 import com.anysoftkeyboard.keyboardextensions.KeyboardExtension;
 import com.anysoftkeyboard.keyboardextensions.KeyboardExtensionFactory;
 import com.anysoftkeyboard.keyboards.KeyboardFactory;
@@ -62,6 +64,8 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.subjects.ReplaySubject;
 import io.reactivex.subjects.Subject;
+import it.pgp.uhu.adapters.ClipboardAdapter;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -134,9 +138,29 @@ public class AnyApplication extends Application {
                 filename);
     }
 
+    public static AnyApplication instance;
+
+    public ClipboardAdapter clipboardAdapter;
+    public ClipboardManager clipboardManager;
+
+    public synchronized ClipboardAdapter getClipboardAdapter(Context context) {
+        if(clipboardAdapter == null)
+            clipboardAdapter = ClipboardAdapter.create(context, getClipboardManager(context));
+        return clipboardAdapter;
+    }
+
+    public synchronized ClipboardManager getClipboardManager(Context context) {
+        if(clipboardManager == null)
+            clipboardManager = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
+        return clipboardManager;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
+        getClipboardAdapter(this);
+
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         setupCrashHandler(sp);
         Logger.d(TAG, "** Starting application in DEBUG mode.");

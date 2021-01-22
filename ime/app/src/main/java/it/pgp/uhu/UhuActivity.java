@@ -13,6 +13,7 @@ import android.support.annotation.RequiresApi;
 import android.widget.Toast;
 
 import com.anysoftkeyboard.ime.AnySoftKeyboardBase;
+import com.menny.android.anysoftkeyboard.AnyApplication;
 
 import it.pgp.uhu.enums.PermReqCodes;
 import it.pgp.uhu.visualization.ClipboardRibbon;
@@ -36,12 +37,11 @@ public class UhuActivity extends Activity {
     }
 
     public void onPermOK() {
-        manager = AnySoftKeyboardBase.instance.getClipboardManager(getApplicationContext());
-        
-        new ClipboardRibbon(AnySoftKeyboardBase.instance, this);
+        manager = AnyApplication.instance.getClipboardManager(getApplicationContext());
+        new ClipboardRibbon(AnyApplication.instance, this);
 
         // neither this nor polling will work if activity is not on focus or is not an IME, on Android 10+
-        manager.addPrimaryClipChangedListener(() -> AnySoftKeyboardBase.instance.getClipboardAdapter(this).refresh());
+        manager.addPrimaryClipChangedListener(() -> AnyApplication.instance.getClipboardAdapter(this).refresh());
 
         new Handler().postDelayed(()->simulateHomePress(this), 1000);
     }

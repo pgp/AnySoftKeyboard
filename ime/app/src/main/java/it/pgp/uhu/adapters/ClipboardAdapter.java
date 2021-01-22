@@ -42,7 +42,6 @@ public class ClipboardAdapter extends ArrayAdapter<String> {
             Animations.highlightListViewItem(position, (AbsListView)parent, () -> {
                 ClipData clip = ClipData.newPlainText(s, s);
                 mru.manager.setPrimaryClip(clip);
-                add(s);
             });
         });
         return v;

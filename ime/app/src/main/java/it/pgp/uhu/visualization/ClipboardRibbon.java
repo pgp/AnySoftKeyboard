@@ -5,7 +5,6 @@ package it.pgp.uhu.visualization;
  */
 
 import android.app.Activity;
-import android.app.Service;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -16,7 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.anysoftkeyboard.ime.AnySoftKeyboardBase;
+import com.menny.android.anysoftkeyboard.AnyApplication;
 import com.menny.android.anysoftkeyboard.R;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
@@ -43,7 +42,7 @@ public class ClipboardRibbon implements View.OnTouchListener {
     protected WindowManager wm;
     protected LinearLayout oView;
     protected View topLeftView;
-    protected final Service service;
+    protected final Context context;
     protected final Activity activity;
 
     public void addViewToOverlay(View view, WindowManager.LayoutParams params) {
@@ -55,19 +54,19 @@ public class ClipboardRibbon implements View.OnTouchListener {
             overlayNotAvailable = true;
             e.printStackTrace();
 
-            Toast.makeText(service,"Unable to draw system overlay, ensure you have granted overlay permissions",Toast.LENGTH_SHORT).show();
+            Toast.makeText(context,"Unable to draw system overlay, ensure you have granted overlay permissions",Toast.LENGTH_SHORT).show();
         }
     }
 
-    public ClipboardRibbon(final Service service, final Activity activity) {
-        this.wm = (WindowManager) service.getSystemService(Context.WINDOW_SERVICE);
-        this.service = service;
+    public ClipboardRibbon(final Context context, final Activity activity) {
+        this.wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        this.context = context;
         this.activity = activity;
-        LayoutInflater inflater = (LayoutInflater) service.getSystemService(LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
         oView = (LinearLayout) inflater.inflate(R.layout.clipboard_ribbon, null);
 
         clipboard_lv = oView.findViewById(R.id.clipboard_lv);
-        clipboard_lv.setAdapter(AnySoftKeyboardBase.instance.getClipboardAdapter(service));
+        clipboard_lv.setAdapter(AnyApplication.instance.getClipboardAdapter(context));
 
         closeOverlay = oView.findViewById(R.id.closeOverlay);
         closeOverlay.setOnClickListener(v -> {
@@ -76,14 +75,14 @@ public class ClipboardRibbon implements View.OnTouchListener {
         });
 
         clearClipboard = oView.findViewById(R.id.clearClipboard);
-        clearClipboard.setOnClickListener(v -> AnySoftKeyboardBase.instance.getClipboardAdapter(service).clear());
+        clearClipboard.setOnClickListener(v -> AnyApplication.instance.getClipboardAdapter(context).clear());
 
         oView.setOnTouchListener(this);
 
         // wm.addView(oView, params);
         addViewToOverlay(oView,ViewType.CONTAINER.getParams());
 
-        topLeftView = new View(service);
+        topLeftView = new View(context);
 
 //        wm.addView(topLeftView,topLeftParams);
         addViewToOverlay(topLeftView,ViewType.ANCHOR.getParams());
