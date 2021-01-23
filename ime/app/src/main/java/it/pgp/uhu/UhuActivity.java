@@ -37,13 +37,8 @@ public class UhuActivity extends Activity {
     }
 
     public void onPermOK() {
-        manager = AnyApplication.instance.getClipboardManager(getApplicationContext());
-        new ClipboardRibbon(AnyApplication.instance, this);
-
-        // neither this nor polling will work if activity is not on focus or is not an IME, on Android 10+
-        manager.addPrimaryClipChangedListener(() -> AnyApplication.instance.getClipboardAdapter(this).refresh());
-
-        new Handler().postDelayed(()->simulateHomePress(this), 1000);
+        new ClipboardRibbon(AnyApplication.instance);
+        finishAffinity();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)

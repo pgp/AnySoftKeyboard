@@ -70,6 +70,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AnyApplication extends Application {
 
@@ -142,6 +143,8 @@ public class AnyApplication extends Application {
 
     public ClipboardAdapter clipboardAdapter;
     public ClipboardManager clipboardManager;
+
+    public static final AtomicBoolean clipboardShown = new AtomicBoolean(false);
 
     public synchronized ClipboardAdapter getClipboardAdapter(Context context) {
         if(clipboardAdapter == null)

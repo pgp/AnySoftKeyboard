@@ -4,7 +4,6 @@ package it.pgp.uhu.visualization;
  * Adapted from it.pgp.xfiles.service.visualization.MovingRibbon
  */
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -36,6 +35,7 @@ public class ClipboardRibbon implements View.OnTouchListener {
     public void destroy() {
         try{ wm.removeView(oView); } catch(Throwable ignored) {}
         try{ wm.removeView(topLeftView); } catch(Throwable ignored) {}
+        AnyApplication.clipboardShown.set(false);
     }
 
     protected boolean overlayNotAvailable = false;
@@ -43,7 +43,6 @@ public class ClipboardRibbon implements View.OnTouchListener {
     protected LinearLayout oView;
     protected View topLeftView;
     protected final Context context;
-    protected final Activity activity;
 
     public void addViewToOverlay(View view, WindowManager.LayoutParams params) {
         if (overlayNotAvailable) return;
@@ -58,10 +57,13 @@ public class ClipboardRibbon implements View.OnTouchListener {
         }
     }
 
-    public ClipboardRibbon(final Context context, final Activity activity) {
+    public ClipboardRibbon(final Context context) {
         this.wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         this.context = context;
-        this.activity = activity;
+        if(AnyApplication.clipboardShown.get()) {
+            Toast.makeText(context, "Clipboard is already visible", Toast.LENGTH_SHORT).show();
+            return;
+        }
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
         oView = (LinearLayout) inflater.inflate(R.layout.clipboard_ribbon, null);
 
@@ -69,10 +71,7 @@ public class ClipboardRibbon implements View.OnTouchListener {
         clipboard_lv.setAdapter(AnyApplication.instance.getClipboardAdapter(context));
 
         closeOverlay = oView.findViewById(R.id.closeOverlay);
-        closeOverlay.setOnClickListener(v -> {
-            destroy();
-            activity.finishAffinity();
-        });
+        closeOverlay.setOnClickListener(v -> destroy());
 
         clearClipboard = oView.findViewById(R.id.clearClipboard);
         clearClipboard.setOnClickListener(v -> AnyApplication.instance.getClipboardAdapter(context).clear());
@@ -86,6 +85,12 @@ public class ClipboardRibbon implements View.OnTouchListener {
 
 //        wm.addView(topLeftView,topLeftParams);
         addViewToOverlay(topLeftView,ViewType.ANCHOR.getParams());
+
+        if(!overlayNotAvailable)
+            AnyApplication.clipboardShown.set(true);
+
+        // neither this nor polling will work if activity is not on focus or is not an IME, on Android 10+
+        AnyApplication.instance.getClipboardManager(context).addPrimaryClipChangedListener(() -> AnyApplication.instance.getClipboardAdapter(context).refresh());
     }
 
     @Override
