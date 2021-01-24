@@ -10,7 +10,7 @@ import java.util.LinkedList;
 public class SimpleMRU<T> {
 
     public final LinkedList<T> keys = new LinkedList<>();
-    private final LinkedList<Long> modified = new LinkedList<>();
+    public final LinkedList<Long> modified = new LinkedList<>();
 
     public final int maxIndex;
 

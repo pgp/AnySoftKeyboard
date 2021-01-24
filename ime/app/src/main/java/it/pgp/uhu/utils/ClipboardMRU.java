@@ -60,4 +60,9 @@ public class ClipboardMRU extends SimpleMRU<String> {
         }
         else throw new RuntimeException("Guard block");
     }
+
+    public synchronized void removeItem(int position) {
+        keys.remove(position);
+        modified.remove(position);
+    }
 }
