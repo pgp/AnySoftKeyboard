@@ -131,8 +131,8 @@ public class ClipboardRibbon implements View.OnTouchListener {
                 return false;
             }
 
-            params.x = newX - (topLeftLocationOnScreen[0]);
-            params.y = newY - (topLeftLocationOnScreen[1]);
+            params.x = newX - topLeftLocationOnScreen[0];
+            params.y = newY - topLeftLocationOnScreen[1];
 
             wm.updateViewLayout(v, params);
             moving = true;
