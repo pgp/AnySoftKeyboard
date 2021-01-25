@@ -71,10 +71,11 @@ public class ClipboardAdapter extends ArrayAdapter<String> {
 
         String s = objects.get(position);
 
+        View cv = convertView;
         tv.setText(s);
         tv.setOnClickListener(w -> {
             Toast.makeText(getContext(), "Ready to be pasted: " + s, Toast.LENGTH_SHORT).show();
-            Animations.highlightListViewItem(position, (AbsListView)parent, () -> {
+            Animations.highlightListViewItem(cv, () -> {
                 ClipData clip = ClipData.newPlainText(s, s);
                 mru.manager.setPrimaryClip(clip);
             });
