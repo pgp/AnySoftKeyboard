@@ -5,24 +5,28 @@ package it.pgp.uhu.visualization;
  */
 
 import android.content.Context;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.menny.android.anysoftkeyboard.AnyApplication;
 import com.menny.android.anysoftkeyboard.R;
+
+import it.pgp.uhu.adapters.ClipboardAdapter;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
 public class ClipboardRibbon implements View.OnTouchListener {
 
     // layout content
-    public ListView clipboard_lv;
+    public RecyclerView clipboard_lv;
     public ImageButton closeOverlay;
     public ImageButton clearClipboard;
 
@@ -68,7 +72,11 @@ public class ClipboardRibbon implements View.OnTouchListener {
         oView = (LinearLayout) inflater.inflate(R.layout.clipboard_ribbon, null);
 
         clipboard_lv = oView.findViewById(R.id.clipboard_lv);
-        clipboard_lv.setAdapter(AnyApplication.instance.getClipboardAdapter(context));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
+        ClipboardAdapter a = AnyApplication.instance.getClipboardAdapter(context);
+        clipboard_lv.setLayoutManager(layoutManager);
+        clipboard_lv.setAdapter(a);
+        new ItemTouchHelper(new DragDropItemTouchHelperCallback(a,a.mru.keys)).attachToRecyclerView(clipboard_lv);
 
         closeOverlay = oView.findViewById(R.id.closeOverlay);
         closeOverlay.setOnClickListener(v -> destroy());
