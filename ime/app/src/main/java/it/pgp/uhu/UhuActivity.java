@@ -38,7 +38,7 @@ public class UhuActivity extends Activity {
 
     public void onPermOK() {
         new ClipboardRibbon(AnyApplication.instance);
-        finishAffinity();
+        finish();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -52,12 +52,10 @@ public class UhuActivity extends Activity {
                 if(canDrawOverlays) onPermOK();
                 else {
                     Toast.makeText(this, "Overlay permission is necessary for having a floating clipboard window, exiting...", Toast.LENGTH_SHORT).show();
-                    finishAffinity();
+                    finish();
                 }
         }
     }
-
-    ClipboardManager manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
