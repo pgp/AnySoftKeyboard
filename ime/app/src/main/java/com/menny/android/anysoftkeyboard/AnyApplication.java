@@ -145,6 +145,20 @@ public class AnyApplication extends Application {
     public ClipboardManager clipboardManager;
 
     public static final AtomicBoolean clipboardShown = new AtomicBoolean(false);
+    public static final AtomicBoolean clipboardIntercept = new AtomicBoolean(true);
+
+    private static boolean loadInterceptStatus(Context context) {
+        SharedPreferences pref = context.getSharedPreferences("it.pgp.uhu", Context.MODE_PRIVATE);
+        return pref.getBoolean("interceptClipboard", true);
+    }
+
+    public static void setInterceptStatus(Context context, boolean status) {
+        SharedPreferences pref = context.getSharedPreferences("it.pgp.uhu", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putBoolean("interceptClipboard", status);
+        editor.apply();
+        clipboardIntercept.set(status);
+    }
 
     public synchronized ClipboardAdapter getClipboardAdapter(Context context) {
         if(clipboardAdapter == null)
@@ -153,8 +167,13 @@ public class AnyApplication extends Application {
     }
 
     public synchronized ClipboardManager getClipboardManager(Context context) {
-        if(clipboardManager == null)
+        if(clipboardManager == null) {
             clipboardManager = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
+            clipboardIntercept.set(loadInterceptStatus(context));
+
+            // neither this nor polling will work if activity is not on focus or is not an IME, on Android 10+
+            clipboardManager.addPrimaryClipChangedListener(() -> getClipboardAdapter(context).refresh());
+        }
         return clipboardManager;
     }
 

@@ -12,6 +12,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.menny.android.anysoftkeyboard.AnyApplication;
 import com.menny.android.anysoftkeyboard.R;
 
 import java.util.LinkedList;
@@ -43,7 +44,8 @@ public class ClipboardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     public void refresh() {
-        if(mru.addClipboardItemFromSystem()) notifyDataSetChanged();
+        if(AnyApplication.clipboardIntercept.get()) mru.addClipboardItemFromSystem();
+        notifyDataSetChanged();
     }
 
     public void remove(int position) {
@@ -82,6 +84,8 @@ public class ClipboardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 Animations.highlightListViewItem(myHolder.name, () -> {
                     ClipData clip = ClipData.newPlainText(s, s);
                     mru.manager.setPrimaryClip(clip);
+                    if(!AnyApplication.clipboardIntercept.get())
+                        mru.addItem(s); // explicitly induce MRU item exchange if clipboard intercept is off
                 });
             });
             myHolder.delBtn.setOnClickListener(w -> {

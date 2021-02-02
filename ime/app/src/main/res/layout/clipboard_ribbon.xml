@@ -27,6 +27,12 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent" />
 
+        <Switch
+            android:id="@+id/interceptClipboard"
+            android:layout_above="@id/closeOverlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
         <ImageButton
             android:id="@+id/closeOverlay"
             android:src="@android:drawable/ic_menu_close_clear_cancel"

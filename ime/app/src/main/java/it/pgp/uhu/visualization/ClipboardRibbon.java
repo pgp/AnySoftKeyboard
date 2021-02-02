@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.menny.android.anysoftkeyboard.AnyApplication;
@@ -27,6 +28,7 @@ public class ClipboardRibbon implements View.OnTouchListener {
 
     // layout content
     public RecyclerView clipboard_lv;
+    public Switch interceptClipboard;
     public ImageButton closeOverlay;
     public ImageButton clearClipboard;
 
@@ -78,6 +80,13 @@ public class ClipboardRibbon implements View.OnTouchListener {
         clipboard_lv.setAdapter(a);
         new ItemTouchHelper(new DragDropItemTouchHelperCallback(a,a.mru.keys)).attachToRecyclerView(clipboard_lv);
 
+        interceptClipboard = oView.findViewById(R.id.interceptClipboard);
+        interceptClipboard.setChecked(AnyApplication.clipboardIntercept.get());
+        interceptClipboard.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            AnyApplication.setInterceptStatus(context, isChecked);
+            Toast.makeText(context, "Clipboard intercept is "+(isChecked?"ON":"OFF"), Toast.LENGTH_SHORT).show();
+        });
+
         closeOverlay = oView.findViewById(R.id.closeOverlay);
         closeOverlay.setOnClickListener(v -> destroy());
 
@@ -96,9 +105,6 @@ public class ClipboardRibbon implements View.OnTouchListener {
 
         if(!overlayNotAvailable)
             AnyApplication.clipboardShown.set(true);
-
-        // neither this nor polling will work if activity is not on focus or is not an IME, on Android 10+
-        AnyApplication.instance.getClipboardManager(context).addPrimaryClipChangedListener(() -> AnyApplication.instance.getClipboardAdapter(context).refresh());
     }
 
     @Override
