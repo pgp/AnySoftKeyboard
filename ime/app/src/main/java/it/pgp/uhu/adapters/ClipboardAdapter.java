@@ -8,10 +8,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputConnection;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.anysoftkeyboard.ime.AnySoftKeyboardBase;
 import com.menny.android.anysoftkeyboard.AnyApplication;
 import com.menny.android.anysoftkeyboard.R;
 
@@ -80,13 +82,24 @@ public class ClipboardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             String s = objects.get(i - 1);
             myHolder.name.setText(s);
             myHolder.name.setOnClickListener(v -> {
-                Toast.makeText(context, "Ready to be pasted: " + s, Toast.LENGTH_SHORT).show();
+                boolean embeddedMode = !AnyApplication.clipboardShown.get();
+                Toast.makeText(context, (embeddedMode?"Pasting: ":"Ready to be pasted: ") + s, Toast.LENGTH_SHORT).show();
                 Animations.highlightListViewItem(myHolder.name, () -> {
                     ClipData clip = ClipData.newPlainText(s, s);
                     mru.manager.setPrimaryClip(clip);
                     if(!AnyApplication.clipboardIntercept.get())
                         mru.addItem(s); // explicitly induce MRU item exchange if clipboard intercept is off
                 });
+                // FIXME sloppy, assumes overlay view not shown when using integrated one
+                //  either remove overlay mode at all, or change predicate
+                // actually paste
+                if(!AnyApplication.clipboardShown.get()) {
+                    InputConnection ic = AnySoftKeyboardBase.instance.getCurrentInputConnection();
+                    if (ic == null) return;
+                    ic.beginBatchEdit();
+                    ic.commitText(s,s.length());
+                    ic.endBatchEdit();
+                }
             });
             myHolder.delBtn.setOnClickListener(w -> {
                 remove(i-1);

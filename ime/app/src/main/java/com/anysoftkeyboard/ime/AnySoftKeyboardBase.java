@@ -60,6 +60,8 @@ public abstract class AnySoftKeyboardBase extends InputMethodService
     private InputViewBinder mInputView;
     private InputMethodManager mInputMethodManager;
 
+    public static AnySoftKeyboardBase instance;
+
     // NOTE: These two are dangerous to use, as they may point to
     // an inaccurate position (in cases where onSelectionUpdate is delayed).
     protected int mGlobalCursorPositionDangerous = 0;
@@ -76,6 +78,7 @@ public abstract class AnySoftKeyboardBase extends InputMethodService
     @Override
     @CallSuper
     public void onCreate() {
+        instance = this;
         Logger.i(
                 TAG,
                 "****** AnySoftKeyboard v%s (%d) service started.",

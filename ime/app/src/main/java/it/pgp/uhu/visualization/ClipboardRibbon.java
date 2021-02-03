@@ -27,11 +27,11 @@ import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 public class ClipboardRibbon implements View.OnTouchListener {
 
     // layout content
-    public RecyclerView clipboard_lv;
-    public Switch interceptClipboard;
-    public ImageButton closeOverlay;
-    public ImageButton clearClipboard;
-    public ImageButton resizeOverlay;
+//    public RecyclerView clipboard_lv;
+//    public Switch interceptClipboard;
+//    public ImageButton closeOverlay;
+//    public ImageButton clearClipboard;
+//    public ImageButton resizeOverlay;
 
     private float offsetX;
     private float offsetY;
@@ -64,6 +64,44 @@ public class ClipboardRibbon implements View.OnTouchListener {
         }
     }
 
+    public static View setupClipboardLayout(Context context, LayoutInflater inflater, WindowManager wm, View.OnClickListener onClose) {
+        View oView = (LinearLayout) inflater.inflate(R.layout.clipboard_ribbon, null);
+
+        RecyclerView clipboard_lv = oView.findViewById(R.id.clipboard_lv);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
+        ClipboardAdapter a = AnyApplication.instance.getClipboardAdapter(context);
+        clipboard_lv.setLayoutManager(layoutManager);
+        clipboard_lv.setAdapter(a);
+        new ItemTouchHelper(new DragDropItemTouchHelperCallback(a,a.mru.keys)).attachToRecyclerView(clipboard_lv);
+
+        Switch interceptClipboard = oView.findViewById(R.id.interceptClipboard);
+        interceptClipboard.setChecked(AnyApplication.clipboardIntercept.get());
+        interceptClipboard.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            AnyApplication.setInterceptStatus(context, isChecked);
+            Toast.makeText(context, "Clipboard intercept is "+(isChecked?"ON":"OFF"), Toast.LENGTH_SHORT).show();
+        });
+
+        ImageButton closeOverlay = oView.findViewById(R.id.closeOverlay);
+//        closeOverlay.setOnClickListener(v -> destroy());
+        closeOverlay.setOnClickListener(onClose);
+
+        if(wm!=null) {
+            ImageButton resizeOverlay = oView.findViewById(R.id.resizeOverlay);
+            resizeOverlay.setOnClickListener(v -> {
+                WindowManager.LayoutParams c = ViewType.CONTAINER.getParams();
+                boolean defaultSize = c.height==600;
+                c.height = defaultSize?900:600;
+                wm.updateViewLayout(oView,c);
+                resizeOverlay.setImageResource(defaultSize?android.R.drawable.arrow_up_float:android.R.drawable.arrow_down_float);
+            });
+        }
+
+        ImageButton clearClipboard = oView.findViewById(R.id.clearClipboard);
+        clearClipboard.setOnClickListener(v -> AnyApplication.instance.getClipboardAdapter(context).clear());
+
+        return oView;
+    }
+
     public ClipboardRibbon(final Context context) {
         this.wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         this.context = context;
@@ -72,36 +110,8 @@ public class ClipboardRibbon implements View.OnTouchListener {
             return;
         }
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
-        oView = (LinearLayout) inflater.inflate(R.layout.clipboard_ribbon, null);
-
-        clipboard_lv = oView.findViewById(R.id.clipboard_lv);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
-        ClipboardAdapter a = AnyApplication.instance.getClipboardAdapter(context);
-        clipboard_lv.setLayoutManager(layoutManager);
-        clipboard_lv.setAdapter(a);
-        new ItemTouchHelper(new DragDropItemTouchHelperCallback(a,a.mru.keys)).attachToRecyclerView(clipboard_lv);
-
-        interceptClipboard = oView.findViewById(R.id.interceptClipboard);
-        interceptClipboard.setChecked(AnyApplication.clipboardIntercept.get());
-        interceptClipboard.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            AnyApplication.setInterceptStatus(context, isChecked);
-            Toast.makeText(context, "Clipboard intercept is "+(isChecked?"ON":"OFF"), Toast.LENGTH_SHORT).show();
-        });
-
-        closeOverlay = oView.findViewById(R.id.closeOverlay);
-        closeOverlay.setOnClickListener(v -> destroy());
-
-        resizeOverlay = oView.findViewById(R.id.resizeOverlay);
-        resizeOverlay.setOnClickListener(v -> {
-            WindowManager.LayoutParams c = ViewType.CONTAINER.getParams();
-            boolean defaultSize = c.height==600;
-            c.height = defaultSize?900:600;
-            wm.updateViewLayout(oView,c);
-            resizeOverlay.setImageResource(defaultSize?android.R.drawable.arrow_up_float:android.R.drawable.arrow_down_float);
-        });
-
-        clearClipboard = oView.findViewById(R.id.clearClipboard);
-        clearClipboard.setOnClickListener(v -> AnyApplication.instance.getClipboardAdapter(context).clear());
+//        oView = (LinearLayout) inflater.inflate(R.layout.clipboard_ribbon, null);
+        oView = (LinearLayout) setupClipboardLayout(context, inflater, wm, v -> destroy());
 
         oView.setOnTouchListener(this);
 

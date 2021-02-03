@@ -3,9 +3,13 @@ package com.anysoftkeyboard.quicktextkeys.ui;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import com.anysoftkeyboard.quicktextkeys.QuickKeyHistoryRecords;
 import com.menny.android.anysoftkeyboard.R;
+
+import it.pgp.uhu.visualization.ClipboardRibbon;
+import it.pgp.uhu.visualization.ViewType;
 
 public class QuickTextViewFactory {
 
@@ -27,6 +31,13 @@ public class QuickTextViewFactory {
         rootView.setQuickKeyHistoryRecords(quickKeyHistoryRecords);
         rootView.setDefaultSkinTonePrefTracker(defaultSkinTonePrefTracker);
 
+        return rootView;
+    }
+
+    public static View createClipboardRibbonView(Context context, View.OnClickListener onClose) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View rootView = ClipboardRibbon.setupClipboardLayout(context, inflater, null, onClose);
+        rootView.setLayoutParams(ViewType.CONTAINER.getParams());
         return rootView;
     }
 }

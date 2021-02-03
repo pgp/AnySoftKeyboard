@@ -2,6 +2,8 @@ package com.anysoftkeyboard.ime;
 
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Toast;
+
 import com.anysoftkeyboard.api.KeyCodes;
 import com.anysoftkeyboard.keyboards.Keyboard;
 import com.anysoftkeyboard.keyboards.views.AnyKeyboardView;
@@ -46,9 +48,11 @@ public abstract class AnySoftKeyboardWithQuickText extends AnySoftKeyboardMediaI
         addDisposable(mDefaultSkinTonePrefTracker);
     }
 
+    // [it.pgp.uhu] replace default emoji text insert, with clipboard layout inflation
     protected void onQuickTextRequested(Keyboard.Key key) {
         if (mDoNotFlipQuickTextKeyAndPopupFunctionality) {
-            outputCurrentQuickTextKey(key);
+//            outputCurrentQuickTextKey(key);
+            switchToClipboardRibbon();
         } else {
             switchToQuickTextKeyboard();
         }
@@ -58,7 +62,8 @@ public abstract class AnySoftKeyboardWithQuickText extends AnySoftKeyboardMediaI
         if (mDoNotFlipQuickTextKeyAndPopupFunctionality) {
             switchToQuickTextKeyboard();
         } else {
-            outputCurrentQuickTextKey(key);
+//            outputCurrentQuickTextKey(key);
+            switchToClipboardRibbon();
         }
     }
 
@@ -107,6 +112,25 @@ public abstract class AnySoftKeyboardWithQuickText extends AnySoftKeyboardMediaI
 
         actualInputView.setVisibility(View.GONE);
         inputViewContainer.addView(quickTextsLayout);
+    }
+
+    private View clipboardView;
+
+    private void switchToClipboardRibbon() {
+        final KeyboardViewContainerView inputViewContainer = getInputViewContainer();
+        abortCorrectionAndResetPredictionState(false);
+
+        cleanUpQuickTextKeyboard(false);
+
+        final AnyKeyboardView actualInputView = (AnyKeyboardView) getInputView();
+        clipboardView = QuickTextViewFactory.createClipboardRibbonView(getApplicationContext(), v -> {
+            if(clipboardView != null) inputViewContainer.removeView(clipboardView);
+            if(!handleCloseRequest()) hideWindow();
+        });
+        actualInputView.resetInputView();
+
+        actualInputView.setVisibility(View.GONE);
+        inputViewContainer.addView(clipboardView);
     }
 
     private boolean cleanUpQuickTextKeyboard(boolean reshowStandardKeyboard) {
