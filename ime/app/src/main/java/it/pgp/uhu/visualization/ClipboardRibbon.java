@@ -31,6 +31,7 @@ public class ClipboardRibbon implements View.OnTouchListener {
     public Switch interceptClipboard;
     public ImageButton closeOverlay;
     public ImageButton clearClipboard;
+    public ImageButton resizeOverlay;
 
     private float offsetX;
     private float offsetY;
@@ -89,6 +90,15 @@ public class ClipboardRibbon implements View.OnTouchListener {
 
         closeOverlay = oView.findViewById(R.id.closeOverlay);
         closeOverlay.setOnClickListener(v -> destroy());
+
+        resizeOverlay = oView.findViewById(R.id.resizeOverlay);
+        resizeOverlay.setOnClickListener(v -> {
+            WindowManager.LayoutParams c = ViewType.CONTAINER.getParams();
+            boolean defaultSize = c.height==600;
+            c.height = defaultSize?900:600;
+            wm.updateViewLayout(oView,c);
+            resizeOverlay.setImageResource(defaultSize?android.R.drawable.arrow_up_float:android.R.drawable.arrow_down_float);
+        });
 
         clearClipboard = oView.findViewById(R.id.clearClipboard);
         clearClipboard.setOnClickListener(v -> AnyApplication.instance.getClipboardAdapter(context).clear());
