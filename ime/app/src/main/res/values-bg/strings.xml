@@ -287,5 +287,4 @@
     <string name="prefs_providers_operation_failed">Пропадна!</string>
     <string name="gesture_typing_alert_button">Разбрах</string>
     <!-- this URL should be localized - it should point to a web-site with information in the locale language. -->
-    <string name="codvid_info_url">https://www.synevo.bg/koronavirus/</string>
 </resources>
