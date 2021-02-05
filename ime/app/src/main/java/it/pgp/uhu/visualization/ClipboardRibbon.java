@@ -4,6 +4,7 @@ package it.pgp.uhu.visualization;
  * Adapted from it.pgp.xfiles.service.visualization.MovingRibbon
  */
 
+import android.content.ClipData;
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -97,7 +98,12 @@ public class ClipboardRibbon implements View.OnTouchListener {
         }
 
         ImageButton clearClipboard = oView.findViewById(R.id.clearClipboard);
-        clearClipboard.setOnClickListener(v -> AnyApplication.instance.getClipboardAdapter(context).clear());
+        clearClipboard.setOnClickListener(v -> {
+            AnyApplication.instance.getClipboardAdapter(context).clear();
+            // also clear OS clipboard
+            ClipData clip = ClipData.newPlainText("", "");
+            AnyApplication.instance.getClipboardManager(context).setPrimaryClip(clip);
+        });
 
         return oView;
     }
