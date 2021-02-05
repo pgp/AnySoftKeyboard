@@ -47,13 +47,12 @@ public class UhuActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
         PermReqCodes prc = PermReqCodes.values()[requestCode];
         boolean canDrawOverlays = Settings.canDrawOverlays(this);
-        switch (prc) {
-            case OVERLAYS:
-                if(canDrawOverlays) onPermOK();
-                else {
-                    Toast.makeText(this, "Overlay permission is necessary for having a floating clipboard window, exiting...", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
+        if (prc == PermReqCodes.OVERLAYS) {
+            if (canDrawOverlays) onPermOK();
+            else {
+                Toast.makeText(this, "Overlay permission is necessary for having a floating clipboard window, exiting...", Toast.LENGTH_SHORT).show();
+                finish();
+            }
         }
     }
 

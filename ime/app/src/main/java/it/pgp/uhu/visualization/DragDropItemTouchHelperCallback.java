@@ -25,6 +25,7 @@ public class DragDropItemTouchHelperCallback extends ItemTouchHelper.Callback {
         this.arrayList = arrayList;
     }
 
+    @Override
     public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
         // get the viewHolder's and target's positions in your adapter data, swap them
         if(viewHolder.getItemViewType() != target.getItemViewType()){
