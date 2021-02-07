@@ -124,8 +124,8 @@ public abstract class AnySoftKeyboardWithQuickText extends AnySoftKeyboardMediaI
 
         final AnyKeyboardView actualInputView = (AnyKeyboardView) getInputView();
         clipboardView = QuickTextViewFactory.createClipboardRibbonView(getApplicationContext(), v -> {
-            if(clipboardView != null) inputViewContainer.removeView(clipboardView);
-            if(!handleCloseRequest()) hideWindow();
+            removeClipboardView();
+            cleanUpQuickTextKeyboard(true);
         });
         actualInputView.resetInputView();
 
@@ -155,5 +155,18 @@ public abstract class AnySoftKeyboardWithQuickText extends AnySoftKeyboardMediaI
     @Override
     protected boolean handleCloseRequest() {
         return super.handleCloseRequest() || cleanUpQuickTextKeyboard(true);
+    }
+
+    private void removeClipboardView() {
+        if(clipboardView != null) {
+            getInputViewContainer().removeView(clipboardView);
+            clipboardView = null;
+        }
+    }
+
+    @Override
+    public void onWindowHidden() {
+        super.onWindowHidden();
+        removeClipboardView();
     }
 }
