@@ -22,7 +22,9 @@ import android.widget.TextView;
 import com.anysoftkeyboard.api.KeyCodes;
 import com.anysoftkeyboard.devicespecific.Clipboard;
 import com.anysoftkeyboard.keyboards.Keyboard;
+import com.anysoftkeyboard.keyboards.views.AnyKeyboardView;
 import com.anysoftkeyboard.keyboards.views.KeyboardViewContainerView;
+import com.anysoftkeyboard.quicktextkeys.ui.QuickTextViewFactory;
 import com.anysoftkeyboard.rx.GenericOnError;
 import com.menny.android.anysoftkeyboard.AnyApplication;
 import com.menny.android.anysoftkeyboard.R;
@@ -264,7 +266,7 @@ public abstract class AnySoftKeyboardClipboard extends AnySoftKeyboardSwipeListe
                 }
                 break;
             case KeyCodes.CLIPBOARD_PASTE_POPUP:
-                showAllClipboardEntries(key);
+                switchToClipboardRibbon();
                 break;
             case KeyCodes.CLIPBOARD_SELECT:
                 mArrowSelectionState = !mArrowSelectionState;
@@ -388,5 +390,48 @@ public abstract class AnySoftKeyboardClipboard extends AnySoftKeyboardSwipeListe
             mClipboard.deleteEntry(position);
             closeGeneralOptionsDialog();
         }
+    }
+
+    protected View clipboardView;
+
+    protected void removeClipboardView() {
+        if(clipboardView != null) {
+            getInputViewContainer().removeView(clipboardView);
+            clipboardView = null;
+        }
+    }
+
+    protected boolean cleanUpQuickTextKeyboard(boolean reshowStandardKeyboard) {
+        final KeyboardViewContainerView inputViewContainer = getInputViewContainer();
+        if (inputViewContainer == null) return false;
+
+        if (reshowStandardKeyboard) {
+            View standardKeyboardView = (View) getInputView();
+            standardKeyboardView.setVisibility(View.VISIBLE);
+        }
+        return true;
+    }
+
+    protected void switchToClipboardRibbon() {
+        final KeyboardViewContainerView inputViewContainer = getInputViewContainer();
+        abortCorrectionAndResetPredictionState(false);
+
+        cleanUpQuickTextKeyboard(false);
+
+        final AnyKeyboardView actualInputView = (AnyKeyboardView) getInputView();
+        clipboardView = QuickTextViewFactory.createClipboardRibbonView(getApplicationContext(), v -> {
+            removeClipboardView();
+            cleanUpQuickTextKeyboard(true);
+        });
+        actualInputView.resetInputView();
+
+        actualInputView.setVisibility(View.GONE);
+        inputViewContainer.addView(clipboardView);
+    }
+
+    @Override
+    public void onWindowHidden() {
+        super.onWindowHidden();
+        removeClipboardView();
     }
 }

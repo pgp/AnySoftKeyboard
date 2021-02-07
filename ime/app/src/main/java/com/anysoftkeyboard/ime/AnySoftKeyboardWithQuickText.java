@@ -114,38 +114,13 @@ public abstract class AnySoftKeyboardWithQuickText extends AnySoftKeyboardMediaI
         inputViewContainer.addView(quickTextsLayout);
     }
 
-    private View clipboardView;
-
-    private void switchToClipboardRibbon() {
-        final KeyboardViewContainerView inputViewContainer = getInputViewContainer();
-        abortCorrectionAndResetPredictionState(false);
-
-        cleanUpQuickTextKeyboard(false);
-
-        final AnyKeyboardView actualInputView = (AnyKeyboardView) getInputView();
-        clipboardView = QuickTextViewFactory.createClipboardRibbonView(getApplicationContext(), v -> {
-            removeClipboardView();
-            cleanUpQuickTextKeyboard(true);
-        });
-        actualInputView.resetInputView();
-
-        actualInputView.setVisibility(View.GONE);
-        inputViewContainer.addView(clipboardView);
-    }
-
-    private boolean cleanUpQuickTextKeyboard(boolean reshowStandardKeyboard) {
-        final KeyboardViewContainerView inputViewContainer = getInputViewContainer();
-        if (inputViewContainer == null) return false;
-
-        if (reshowStandardKeyboard) {
-            View standardKeyboardView = (View) getInputView();
-            standardKeyboardView.setVisibility(View.VISIBLE);
-        }
+    protected boolean cleanUpQuickTextKeyboard(boolean reshowStandardKeyboard) {
+        if(!super.cleanUpQuickTextKeyboard(reshowStandardKeyboard)) return false;
 
         QuickTextPagerView quickTextsLayout =
-                inputViewContainer.findViewById(R.id.quick_text_pager_root);
+                getInputViewContainer().findViewById(R.id.quick_text_pager_root);
         if (quickTextsLayout != null) {
-            inputViewContainer.removeView(quickTextsLayout);
+            getInputViewContainer().removeView(quickTextsLayout);
             return true;
         } else {
             return false;
@@ -155,18 +130,5 @@ public abstract class AnySoftKeyboardWithQuickText extends AnySoftKeyboardMediaI
     @Override
     protected boolean handleCloseRequest() {
         return super.handleCloseRequest() || cleanUpQuickTextKeyboard(true);
-    }
-
-    private void removeClipboardView() {
-        if(clipboardView != null) {
-            getInputViewContainer().removeView(clipboardView);
-            clipboardView = null;
-        }
-    }
-
-    @Override
-    public void onWindowHidden() {
-        super.onWindowHidden();
-        removeClipboardView();
     }
 }
