@@ -67,15 +67,6 @@ public abstract class AnySoftKeyboardWithQuickText extends AnySoftKeyboardMediaI
         }
     }
 
-    private void outputCurrentQuickTextKey(Keyboard.Key key) {
-        QuickTextKey quickTextKey = AnyApplication.getQuickTextKeyFactory(this).getEnabledAddOn();
-        if (TextUtils.isEmpty(mOverrideQuickTextText)) {
-            onText(key, quickTextKey.getKeyOutputText());
-        } else {
-            onText(key, mOverrideQuickTextText);
-        }
-    }
-
     @Override
     public void onFinishInputView(boolean finishingInput) {
         super.onFinishInputView(finishingInput);

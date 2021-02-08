@@ -1,14 +1,14 @@
 package com.anysoftkeyboard.ime;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.VisibleForTesting;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
@@ -17,10 +17,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
 import com.anysoftkeyboard.api.KeyCodes;
-import com.anysoftkeyboard.devicespecific.Clipboard;
 import com.anysoftkeyboard.keyboards.Keyboard;
 import com.anysoftkeyboard.keyboards.views.AnyKeyboardView;
 import com.anysoftkeyboard.keyboards.views.KeyboardViewContainerView;
@@ -28,14 +27,12 @@ import com.anysoftkeyboard.quicktextkeys.ui.QuickTextViewFactory;
 import com.anysoftkeyboard.rx.GenericOnError;
 import com.menny.android.anysoftkeyboard.AnyApplication;
 import com.menny.android.anysoftkeyboard.R;
-import java.util.ArrayList;
-import java.util.List;
-import net.evendanan.pixel.GeneralDialogController;
+
+import it.pgp.uhu.adapters.ClipboardAdapter;
 
 public abstract class AnySoftKeyboardClipboard extends AnySoftKeyboardSwipeListener {
 
     private boolean mArrowSelectionState;
-    private Clipboard mClipboard;
     protected static final int MAX_CHARS_PER_CODE_POINT = 2;
     private static final long MAX_TIME_TO_SHOW_SYNCED_CLIPBOARD_ENTRY = 15 * 1000;
     private long mLastSyncedClipboardEntryTime = Long.MIN_VALUE;
@@ -118,7 +115,6 @@ public abstract class AnySoftKeyboardClipboard extends AnySoftKeyboardSwipeListe
     @Override
     public void onCreate() {
         super.onCreate();
-        mClipboard = AnyApplication.getDeviceSpecific().createClipboard(getApplicationContext());
         mSuggestionClipboardEntry = new ClipboardStripActionProvider(mClipboardActionOwnerImpl);
         addDisposable(
                 prefs().getBoolean(
@@ -128,8 +124,6 @@ public abstract class AnySoftKeyboardClipboard extends AnySoftKeyboardSwipeListe
                         .subscribe(
                                 syncClipboard -> {
                                     mLastSyncedClipboardEntryTime = Long.MIN_VALUE;
-                                    mClipboard.setClipboardUpdatedListener(
-                                            syncClipboard ? this::onClipboardEntryAdded : null);
                                 },
                                 GenericOnError.onError("settings_key_os_clipboard_sync")));
     }
@@ -188,50 +182,16 @@ public abstract class AnySoftKeyboardClipboard extends AnySoftKeyboardSwipeListe
         getInputViewContainer().removeStripAction(mSuggestionClipboardEntry);
     }
 
-    private void showAllClipboardEntries(Keyboard.Key key) {
-        if (mClipboard.getClipboardEntriesCount() == 0) {
-            showToastMessage(R.string.clipboard_is_empty_toast, true);
-        } else {
-            final List<CharSequence> nonEmpties =
-                    new ArrayList<>(mClipboard.getClipboardEntriesCount());
-            for (int entryIndex = 0;
-                    entryIndex < mClipboard.getClipboardEntriesCount();
-                    entryIndex++) {
-                nonEmpties.add(mClipboard.getText(entryIndex));
-            }
-            final CharSequence[] entries = nonEmpties.toArray(new CharSequence[0]);
-            DialogInterface.OnClickListener onClickListener =
-                    (dialog, which) -> onText(key, entries[which]);
-            showOptionsDialogWithData(
-                    R.string.clipboard_paste_entries_title,
-                    R.drawable.ic_clipboard_paste_light,
-                    new CharSequence[0],
-                    onClickListener,
-                    new GeneralDialogController.DialogPresenter() {
-                        @Override
-                        public void beforeDialogShown(
-                                @NonNull AlertDialog dialog, @Nullable Object data) {}
-
-                        @Override
-                        public void onSetupDialogRequired(
-                                AlertDialog.Builder builder, int optionId, @Nullable Object data) {
-                            builder.setAdapter(
-                                    new ClipboardEntriesAdapter(
-                                            AnySoftKeyboardClipboard.this, entries),
-                                    onClickListener);
-                        }
-                    });
-        }
-    }
-
     protected void handleClipboardOperation(
             final Keyboard.Key key, final int primaryCode, InputConnection ic) {
         abortCorrectionAndResetPredictionState(false);
+        ClipboardManager c = AnyApplication.instance.getClipboardManager(this);
+        ClipboardAdapter ca = AnyApplication.instance.getClipboardAdapter(this);
         switch (primaryCode) {
             case KeyCodes.CLIPBOARD_PASTE:
                 CharSequence clipboardText =
-                        mClipboard.getClipboardEntriesCount() > 0
-                                ? mClipboard.getText(0 /*last entry paste*/)
+                        ca.objects.size() > 0
+                                ? c.getPrimaryClip().getItemAt(0).getText().toString()
                                 : "";
                 if (!TextUtils.isEmpty(clipboardText)) {
                     onText(null, clipboardText);
@@ -245,7 +205,7 @@ public abstract class AnySoftKeyboardClipboard extends AnySoftKeyboardSwipeListe
                     CharSequence selectedText =
                             ic.getSelectedText(InputConnection.GET_TEXT_WITH_STYLES);
                     if (!TextUtils.isEmpty(selectedText)) {
-                        mClipboard.setText(selectedText);
+                        c.setPrimaryClip(ClipData.newPlainText(selectedText, selectedText));
                         if (primaryCode == KeyCodes.CLIPBOARD_CUT) {
                             // sending a DEL key will delete the selected text
                             sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL);
@@ -366,29 +326,6 @@ public abstract class AnySoftKeyboardClipboard extends AnySoftKeyboardSwipeListe
         if (mArrowSelectionState
                 && (primaryCode != KeyCodes.ARROW_LEFT && primaryCode != KeyCodes.ARROW_RIGHT)) {
             mArrowSelectionState = false;
-        }
-    }
-
-    private class ClipboardEntriesAdapter extends ArrayAdapter<CharSequence> {
-        public ClipboardEntriesAdapter(@NonNull Context context, CharSequence[] items) {
-            super(context, R.layout.clipboard_dialog_entry, R.id.clipboard_entry_text, items);
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            View view = super.getView(position, convertView, parent);
-            View deleteView = view.findViewById(R.id.clipboard_entry_delete);
-            deleteView.setTag(R.id.clipboard_entry_delete, position);
-            deleteView.setOnClickListener(this::onItemDeleteClicked);
-
-            return view;
-        }
-
-        private void onItemDeleteClicked(View view) {
-            int position = (int) view.getTag(R.id.clipboard_entry_delete);
-            mClipboard.deleteEntry(position);
-            closeGeneralOptionsDialog();
         }
     }
 

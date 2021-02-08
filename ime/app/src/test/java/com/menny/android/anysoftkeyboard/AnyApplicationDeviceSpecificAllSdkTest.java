@@ -1,21 +1,14 @@
 package com.menny.android.anysoftkeyboard;
 
-import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
-import static org.robolectric.annotation.Config.NEWEST_SDK;
-import static org.robolectric.annotation.Config.OLDEST_SDK;
-
 import android.app.Application;
 import android.database.ContentObserver;
 import android.os.Build;
 import android.view.GestureDetector;
+
 import com.anysoftkeyboard.AnySoftKeyboardRobolectricTestRunner;
 import com.anysoftkeyboard.devicespecific.AskOnGestureListener;
 import com.anysoftkeyboard.devicespecific.AskV19GestureDetector;
 import com.anysoftkeyboard.devicespecific.AskV8GestureDetector;
-import com.anysoftkeyboard.devicespecific.Clipboard;
-import com.anysoftkeyboard.devicespecific.ClipboardV11;
-import com.anysoftkeyboard.devicespecific.ClipboardV28;
-import com.anysoftkeyboard.devicespecific.ClipboardV3;
 import com.anysoftkeyboard.devicespecific.DeviceSpecific;
 import com.anysoftkeyboard.devicespecific.DeviceSpecificLowest;
 import com.anysoftkeyboard.devicespecific.DeviceSpecificV11;
@@ -27,13 +20,19 @@ import com.anysoftkeyboard.devicespecific.DeviceSpecificV28;
 import com.anysoftkeyboard.dictionaries.BTreeDictionary;
 import com.anysoftkeyboard.dictionaries.DictionaryContentObserver;
 import com.anysoftkeyboard.dictionaries.DictionaryContentObserverAPI16;
-import java.util.Arrays;
-import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.robolectric.annotation.Config;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static org.robolectric.annotation.Config.NEWEST_SDK;
+import static org.robolectric.annotation.Config.OLDEST_SDK;
 
 @RunWith(AnySoftKeyboardRobolectricTestRunner.class)
 public abstract class AnyApplicationDeviceSpecificAllSdkTest {
@@ -69,38 +68,6 @@ public abstract class AnyApplicationDeviceSpecificAllSdkTest {
                     DeviceSpecificV24.class,
                     DeviceSpecificV24.class,
                     DeviceSpecificV28.class);
-
-    private final List<Class<? extends Clipboard>> mExpectedClipboardClass =
-            Arrays.asList(
-                    ClipboardV3.class, // 0
-                    ClipboardV3.class, // 1
-                    ClipboardV3.class,
-                    ClipboardV3.class,
-                    ClipboardV3.class,
-                    ClipboardV3.class,
-                    ClipboardV3.class,
-                    ClipboardV3.class,
-                    ClipboardV3.class, // 8
-                    ClipboardV3.class,
-                    ClipboardV3.class, // 10
-                    ClipboardV11.class, // 11
-                    ClipboardV11.class,
-                    ClipboardV11.class,
-                    ClipboardV11.class, // 14
-                    ClipboardV11.class,
-                    ClipboardV11.class, // 16
-                    ClipboardV11.class,
-                    ClipboardV11.class,
-                    ClipboardV11.class, // 19
-                    ClipboardV11.class, // 20
-                    ClipboardV11.class,
-                    ClipboardV11.class,
-                    ClipboardV11.class,
-                    ClipboardV11.class,
-                    ClipboardV11.class,
-                    ClipboardV11.class,
-                    ClipboardV11.class,
-                    ClipboardV28.class);
 
     private final List<Class<? extends DictionaryContentObserver>>
             mExpectedDictionaryObserverClass =
@@ -179,10 +146,6 @@ public abstract class AnyApplicationDeviceSpecificAllSdkTest {
 
         Assert.assertEquals(
                 deviceSpecific.getClass().getSimpleName(), deviceSpecific.getApiLevel());
-
-        final Clipboard clipboard = deviceSpecific.createClipboard(application);
-        Assert.assertNotNull(clipboard);
-        Assert.assertSame(mExpectedClipboardClass.get(Build.VERSION.SDK_INT), clipboard.getClass());
 
         final ContentObserver dictionaryContentObserver =
                 deviceSpecific.createDictionaryContentObserver(Mockito.mock(BTreeDictionary.class));

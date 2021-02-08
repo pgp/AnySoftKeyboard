@@ -17,7 +17,6 @@
 package com.anysoftkeyboard.devicespecific;
 
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.os.Build;
 import android.view.inputmethod.CorrectionInfo;
 import android.view.inputmethod.InputConnection;
@@ -35,10 +34,5 @@ public class DeviceSpecificV11 extends DeviceSpecificLowest {
         super.commitCorrectionToInputConnection(ic, wordOffsetInInput, oldWord, newWord);
         CorrectionInfo correctionInfo = new CorrectionInfo(wordOffsetInInput, oldWord, newWord);
         ic.commitCorrection(correctionInfo);
-    }
-
-    @Override
-    public Clipboard createClipboard(Context applicationContext) {
-        return new ClipboardV11(applicationContext);
     }
 }

@@ -50,6 +50,4 @@ public interface DeviceSpecific {
             @NonNull CharSequence keyboardId);
 
     ContentObserver createDictionaryContentObserver(BTreeDictionary dictionary);
-
-    Clipboard createClipboard(Context applicationContext);
 }

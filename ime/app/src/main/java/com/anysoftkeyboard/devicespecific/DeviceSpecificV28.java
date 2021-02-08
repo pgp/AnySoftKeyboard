@@ -17,17 +17,11 @@
 package com.anysoftkeyboard.devicespecific;
 
 import android.annotation.TargetApi;
-import android.content.Context;
 
 @TargetApi(28)
 public class DeviceSpecificV28 extends DeviceSpecificV24 {
     @Override
     public String getApiLevel() {
         return "DeviceSpecificV28";
-    }
-
-    @Override
-    public Clipboard createClipboard(Context applicationContext) {
-        return new ClipboardV28(applicationContext);
     }
 }

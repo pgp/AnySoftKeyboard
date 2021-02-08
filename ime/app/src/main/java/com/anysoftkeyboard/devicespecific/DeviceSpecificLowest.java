@@ -74,9 +74,4 @@ public class DeviceSpecificLowest implements DeviceSpecific {
     public ContentObserver createDictionaryContentObserver(BTreeDictionary dictionary) {
         return new DictionaryContentObserver(dictionary);
     }
-
-    @Override
-    public Clipboard createClipboard(Context applicationContext) {
-        return new ClipboardV3(applicationContext);
-    }
 }
